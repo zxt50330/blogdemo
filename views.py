@@ -1,12 +1,14 @@
 from flask import Blueprint
 from flask import request, jsonify
-from models import Post
+from models import Post, Comment
+from schema import PostSchema, CommentSchema
 
 blueprint = Blueprint('post', __name__)
 
 
-@blueprint.route('/api/posts', methods=['GET', 'POST'])
+@blueprint.route('/api/posts/', methods=['GET', 'POST'])
 def get_posts():
+    post_schema = PostSchema()
     if request.method == 'POST':
         try:
             data = request.get_json()
@@ -18,10 +20,13 @@ def get_posts():
             return jsonify({'code': 400, 'data': e})
     else:
         posts = Post.query.all()
-        return jsonify({'data': posts})
+        data = post_schema.dump(posts, many=True).data
+        return jsonify({'data': data})
 
 
 @blueprint.route('/api/posts/<int:pk>', methods=['GET'])
 def get_post(pk):
     post = Post.query.filter_by(id=pk).one()
-    return jsonify({'data': post})
+    post_schema = PostSchema()
+    data = post_schema.dump(post).data
+    return jsonify({'data': data})

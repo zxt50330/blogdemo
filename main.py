@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_script import Manager
 from flask_migrate import Migrate,MigrateCommand
-from base import db
+from base import db, ma
 from views import blueprint
 import json
 import datetime
@@ -11,6 +11,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://:@localhost/learn1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db.init_app(app)
+ma.init_app(app)
 app.register_blueprint(blueprint)
 migrate = Migrate(app, db)
 # migrate = Migrate(app,db)
