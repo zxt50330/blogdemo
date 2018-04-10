@@ -2,6 +2,8 @@ from base import db
 from sqlalchemy import func, text
 from sqlalchemy.ext.declarative import declared_attr
 from datetime import datetime
+from transitions import Machine
+from statemachine import states, transitions
 
 
 class ModelTimeMixin(object):
@@ -31,15 +33,30 @@ class Post(db.Model, ModelTimeMixin):
     #     return self.update_time
 
 
-class Comment(db.Model):
+class Comment(Machine, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), nullable=False)
     content = db.Column(db.String(80), nullable=False)
-    created = db.Column(db.TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
+    created = db.Column(db.DateTime, default=datetime.utcnow())
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+    def __init__(self, **kwargs):
+        super(Comment, self).__init__(**kwargs)
+        # 状态定义
+        states = ['wait', 'pass', 'not pass']
+        transitions = [
+            {'trigger': 'review', 'source': 'wait', 'dest': 'pass'},
+            {'trigger': 'review_not_pass', 'source': 'wait', 'dest': 'not pass'},
+            {'trigger': 'back_wait', 'source': 'initial', 'dest': 'wait'}]
+        Machine.__init__(self, states=states, initial='wait')
+        self.add_transition('review', 'wait', 'pass')
+        # Machine(self, states, transitions=transitions)
 
     def __repr__(self):
         return '<Comment %r>' % self.content
+
+    def on_enter_wait(self):
+        print('wait for u')
 
 # admin = User(username='admin', email='admin@example.com')
 # guest = User(username='guest', email='guest@example.com')

@@ -7,6 +7,8 @@ from base import db
 blueprint = Blueprint('post', __name__)
 
 post_schema = PostSchema()
+comment_schema = CommentSchema()
+
 
 @blueprint.route('/api/posts/', methods=['GET', 'POST'])
 def get_posts():
@@ -73,3 +75,31 @@ def delete_post(pk):
     db.session.delete(post)
     db.session.commit()
     return jsonify({'data': ''})
+
+
+@blueprint.route('/api/posts/<int:pk>/comments', methods=['GET', 'POST'])
+def get_comments(pk):
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            # if not data['title'] or not data['content']:
+            #     return jsonify({'code': 400})
+            # data['post_id'] = pk
+            comment = Comment(post_id=pk, **data)
+            # post_data = comment_schema.load(data).data
+            db.session.add(comment)
+            db.session.commit()
+            # comment.back_wait()
+            print(comment.state)
+            dump_data = comment_schema.dump(comment).data
+            return jsonify({'code': 201, 'data': dump_data})
+        except Exception as e:
+            return jsonify({'code': 500, 'data': e})
+    else:
+        comments = Comment.query.filter_by(post_id=pk).all()
+        total = len(comments)
+        # print([comment.state for comment in comments])
+        data = comment_schema.dump(comments, many=True).data
+        return jsonify({'data': data, 'total': total})
+
+
