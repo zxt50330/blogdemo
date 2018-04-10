@@ -39,6 +39,7 @@ class Comment(Machine, db.Model):
     content = db.Column(db.String(80), nullable=False)
     created = db.Column(db.DateTime, default=datetime.utcnow())
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    status = db.Column(db.String(80), nullable=False)
 
     def __init__(self, **kwargs):
         super(Comment, self).__init__(**kwargs)
@@ -50,29 +51,15 @@ class Comment(Machine, db.Model):
             {'trigger': 'back_wait', 'source': 'initial', 'dest': 'wait'}]
         Machine.__init__(self, states=states, initial='wait')
         self.add_transition('review', 'wait', 'pass')
+        self.status = 'wait'
+
         # Machine(self, states, transitions=transitions)
 
     def __repr__(self):
         return '<Comment %r>' % self.content
 
-    def on_enter_wait(self):
+    def on_enter_review(self):
+        # TODO：这里面刷状态？
+        self.status = 'pass'
+        db.session.commit()
         print('wait for u')
-
-# admin = User(username='admin', email='admin@example.com')
-# guest = User(username='guest', email='guest@example.com')
-# db.session.add(admin)
-# db.session.add(guest)
-# db.session.commit()
-
-# def get_addresses_from_user(user_name):
-#     user = db.session.query(User).filter_by(username=user_name).first()
-#     # address = Address(email_address='4sadas4', user_id=user.id)
-#     # db.session.add(address)
-#     # db.session.commit()
-#     print(user.address)
-#
-#     a = db.session.query(Address).filter(Address.email_address.like('%4%')).all()
-#     print([(i.user,i) for i in a])
-
-# if __name__ == '__main__':
-#     get_addresses_from_user('guest')

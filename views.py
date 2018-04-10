@@ -89,7 +89,7 @@ def get_comments(pk):
             # post_data = comment_schema.load(data).data
             db.session.add(comment)
             db.session.commit()
-            # comment.back_wait()
+            comment.review()
             print(comment.state)
             dump_data = comment_schema.dump(comment).data
             return jsonify({'code': 201, 'data': dump_data})
