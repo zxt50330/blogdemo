@@ -3,12 +3,12 @@ from flask import request, jsonify
 from models import Post, Comment
 from schema import PostSchema, CommentSchema
 from base import db
+import time
 
 blueprint = Blueprint('post', __name__)
 
 post_schema = PostSchema()
 comment_schema = CommentSchema()
-
 
 @blueprint.route('/api/posts/', methods=['GET', 'POST'])
 def get_posts():
@@ -25,9 +25,16 @@ def get_posts():
         except Exception as e:
             return jsonify({'code': 500, 'data': e})
     else:
+        t1 = time.time()
         posts = Post.query.all()
         total = len(posts)
         data = post_schema.dump(posts, many=True).data
+
+        for post in data:
+            count = Comment.query.filter_by(post_id=post['id']).count()
+            post['comment_count'] = count
+        t2 = time.time()
+        print(t2-t1)
         return jsonify({'data': data, 'total': total})
 
 
@@ -113,10 +120,17 @@ total = STR + str + number
 
 @blueprint.route('/random_data', methods=['GET'])
 def random_data():
-    for i in range(0,100):
-        data = ''.join(random.sample(total, 10))
-        print(data)
-        tmp = Post(title='rabdom%d'%i, content=data)
-        db.session.add(tmp)
+    # for i in range(0,100):
+    #     data = ''.join(random.sample(total, 10))
+    #     print(data)
+    #     tmp = Post(title='rabdom%d'%i, content=data)
+    #     db.session.add(tmp)
+    posts = Post.query.all()
+    for post in posts:
+        for i in range(0,random.randint(1,5)):
+            data = ''.join(random.sample(total, 10))
+            tmp = Comment(email='test.com', post_id=post.id, content=data)
+            db.session.add(tmp)
     db.session.commit()
+    return jsonify({'data': 'done'})
 
