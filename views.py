@@ -103,3 +103,20 @@ def get_comments(pk):
         return jsonify({'data': data, 'total': total})
 
 
+
+import random
+
+STR = [chr(i) for i in range(65,91)]   #65-91对应字符A-Z
+str = [chr(i) for i in range(97,123)]   #a-z
+number = [chr(i) for i in range(48,58)]  #0-9
+total = STR + str + number
+
+@blueprint.route('/random_data', methods=['GET'])
+def random_data():
+    for i in range(0,100):
+        data = ''.join(random.sample(total, 10))
+        print(data)
+        tmp = Post(title='rabdom%d'%i, content=data)
+        db.session.add(tmp)
+    db.session.commit()
+

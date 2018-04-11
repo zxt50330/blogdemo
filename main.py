@@ -27,6 +27,5 @@ manager.add_command('db', MigrateCommand)
 #     nowTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 #     return json.dumps({"current_time": nowTime})
 
-
 if __name__ == '__main__':
     manager.run()

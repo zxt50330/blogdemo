@@ -24,6 +24,7 @@ class Post(db.Model, ModelTimeMixin):
     # update_time = db.Column(db.TIMESTAMP(True), nullable=False)
     # create_time = db.Column(db.TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
     comment = db.relationship('Comment', backref='post')
+    view_count = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<Post %r>' % self.title
