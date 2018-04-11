@@ -7,13 +7,7 @@ import time
 import redis
 
 r = redis.Redis(host='127.0.0.1', port=6379,db=0)
-pipe = r.pipeline(transaction=True)
-
-# comments = Comment.query.all()
-# for comment in comments:
-#     r.set('',)
-
-
+# pipe = r.pipeline(transaction=True)
 
 
 blueprint = Blueprint('post', __name__)
@@ -42,7 +36,9 @@ def get_posts():
         data = post_schema.dump(posts, many=True).data
 
         for post in data:
-            count = len(post['comment'])
+            # count = len(post['comment'])
+            # print(r.hgetall(post['id']))
+            count = len(r.hgetall(post['id']))
             # count = Comment.query.filter_by(post_id=post['id']).count()
             post['comment_count'] = count
         t2 = time.time()
@@ -137,12 +133,15 @@ def random_data():
     #     print(data)
     #     tmp = Post(title='rabdom%d'%i, content=data)
     #     db.session.add(tmp)
-    posts = Post.query.all()
-    for post in posts:
-        for i in range(0,random.randint(1,5)):
-            data = ''.join(random.sample(total, 10))
-            tmp = Comment(email='test.com', post_id=post.id, content=data)
-            db.session.add(tmp)
-    db.session.commit()
+    # posts = Post.query.all()
+    # for post in posts:
+    #     for i in range(0,random.randint(1,5)):
+    #         data = ''.join(random.sample(total, 10))
+    #         tmp = Comment(email='test.com', post_id=post.id, content=data)
+    #         db.session.add(tmp)
+    # db.session.commit()
+    comments = Comment.query.all()
+    for comment in comments:
+        r.hset(comment.post_id, comment.id, comment)
     return jsonify({'data': 'done'})
 

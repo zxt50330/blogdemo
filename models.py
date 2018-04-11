@@ -23,7 +23,7 @@ class Post(db.Model, ModelTimeMixin):
     content = db.Column(db.String(80),  nullable=False)
     # update_time = db.Column(db.TIMESTAMP(True), nullable=False)
     # create_time = db.Column(db.TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
-    comment = db.relationship('Comment', backref='post')
+    # comment = db.relationship('Comment', backref='post')
     view_count = db.Column(db.Integer, default=0)
 
     def __repr__(self):
