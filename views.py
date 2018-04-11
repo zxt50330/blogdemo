@@ -129,18 +129,21 @@ total = STR + str + number
 
 @blueprint.route('/random_data', methods=['GET'])
 def random_data():
-    # for i in range(0,100):
-    #     data = ''.join(random.sample(total, 10))
-    #     print(data)
-    #     tmp = Post(title='rabdom%d'%i, content=data)
-    #     db.session.add(tmp)
-    # posts = Post.query.all()
-    # for post in posts:
-    #     for i in range(0,random.randint(1,5)):
-    #         data = ''.join(random.sample(total, 10))
-    #         tmp = Comment(email='test.com', post_id=post.id, content=data)
-    #         db.session.add(tmp)
-    # db.session.commit()
+    # 刷入100条记录
+    for i in range(0,100):
+        data = ''.join(random.sample(total, 10))
+        print(data)
+        tmp = Post(title='rabdom%d'%i, content=data)
+        db.session.add(tmp)
+    posts = Post.query.all()
+    # 每个post刷入n条comment
+    for post in posts:
+        for i in range(0,random.randint(1,5)):
+            data = ''.join(random.sample(total, 10))
+            tmp = Comment(email='test.com', post_id=post.id, content=data)
+            db.session.add(tmp)
+    db.session.commit()
+    # 数据写入redis
     comments = Comment.query.all()
     for comment in comments:
         r.hset(comment.post_id, comment.id, comment)
