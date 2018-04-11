@@ -104,6 +104,7 @@ def get_comments(pk):
             # post_data = comment_schema.load(data).data
             db.session.add(comment)
             db.session.commit()
+            print(comment.state)
             comment.review()
             print(comment.state)
             dump_data = comment_schema.dump(comment).data

@@ -23,7 +23,7 @@ class Post(db.Model, ModelTimeMixin):
     content = db.Column(db.String(80),  nullable=False)
     # update_time = db.Column(db.TIMESTAMP(True), nullable=False)
     # create_time = db.Column(db.TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
-    # comment = db.relationship('Comment', backref='post')
+    comment = db.relationship('Comment', backref='post')
     view_count = db.Column(db.Integer, default=0)
 
     def __repr__(self):
@@ -46,10 +46,6 @@ class Comment(Machine, db.Model):
         super(Comment, self).__init__(**kwargs)
         # 状态定义
         states = ['wait', 'pass', 'not pass']
-        transitions = [
-            {'trigger': 'review', 'source': 'wait', 'dest': 'pass'},
-            {'trigger': 'review_not_pass', 'source': 'wait', 'dest': 'not pass'},
-            {'trigger': 'back_wait', 'source': 'initial', 'dest': 'wait'}]
         Machine.__init__(self, states=states, initial='wait')
         self.add_transition('review', 'wait', 'pass')
         self.status = 'wait'
@@ -59,8 +55,8 @@ class Comment(Machine, db.Model):
     def __repr__(self):
         return '<Comment %r>' % self.content
 
-    def on_enter_review(self):
-        # TODO：这里面刷状态？
+    def on_enter_pass(self):
         self.status = 'pass'
         db.session.commit()
         print('wait for u')
+
