@@ -4,6 +4,17 @@ from models import Post, Comment
 from schema import PostSchema, CommentSchema
 from base import db
 import time
+import redis
+
+r = redis.Redis(host='127.0.0.1', port=6379,db=0)
+pipe = r.pipeline(transaction=True)
+
+# comments = Comment.query.all()
+# for comment in comments:
+#     r.set('',)
+
+
+
 
 blueprint = Blueprint('post', __name__)
 
@@ -31,7 +42,8 @@ def get_posts():
         data = post_schema.dump(posts, many=True).data
 
         for post in data:
-            count = Comment.query.filter_by(post_id=post['id']).count()
+            count = len(post['comment'])
+            # count = Comment.query.filter_by(post_id=post['id']).count()
             post['comment_count'] = count
         t2 = time.time()
         print(t2-t1)
